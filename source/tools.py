@@ -97,6 +97,99 @@ class Tools(object):
         return app
 
 
+    def get_rectangle_corners(self, cnt):
+        pts = cnt.reshape(4,2)
+        rect = np.zeros((4.3), dtype = "float32")
+
+        # the top-left point has the smallest sum whereas
+        # bottom-right point has the largest sum
+        s = pts.sum(axis = 1)
+        rect[0] = pts[np.argmin(s)]
+        rect[2] = pts[np.argmax(s)]
+
+        # the top-right points has the minimum difference whereaas
+        # the bottom-left points has the maximum difference
+        dif = np.diff(pts, axis = 1)
+        rect[1] = pts[np.argmin(dif)]
+        rect[3] = pts[np.argmax(dif)]
+
+        return rect
+
+
+    def warp_perspective(self, rect, grid):
+        (tl, tr, br, bl) = rect
+        widthA = np.sqrt((br[0]-bl[0])**2 + (br[1]-bl[1])**2)
+        widthB = np.sqrt((tr[0] - tl[0])**2 + (tr[1] - tl[1])**2)
+
+        heightA = np.sqrt((tl[0] - bl[0])**2 + (tl[1] - bl[1])**2)
+        heightB = np.sqrt((tr[0] - br[0])**2 + (tr[1] - br[1])**2)
+
+        maxWidth = max(widthA, widthB)
+        maxHeight = max(heightA, heightB)
+
+        dst = np.array([0,0], [maxWidth -1, 0],
+                       [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1],dtype = "float32")
+
+        # calculate the perspective transform matrix and warp the perspective to grab the screen
+        M = cv2.getPerspectiveTransform(rect, dst)
+        warp = cv2.warpPerspective(grid, M, (maxWidth, maxHeight))
+        return self.make_it_square(warp)
+
+
+    def getTopLine(self, img):
+        for i, row in enumerate(img):
+            if np.any(row):
+                return i
+        return None
+
+
+    def getBottomLine(self, img):
+        for i in xrange(img.shape[0]-1, -1, -1):
+            if np.any(img[i]):
+                return i
+        return None
+
+
+    def getLeftLine(self, img):
+        for i in xrange(img.shape[1]):
+            if np.any(img[:, i]):
+                return i
+        return None
+
+
+    def getRigthLine(self, img):
+        for i in xrange(img.shape[1]-1, -1, -1):
+            if np.any(img[:, i]):
+                return i
+        return None
+
+
+    def rowShift(self, img, start, end, length):
+        shifted = np.zeros(img.shape)
+        if start + length < 0:
+            length = -start
+        elif end + length > img.shape[0]:
+            length = img.shape[0] - 1 - end
+
+        for row in xrange(start, end, 1):
+            shifted[row + length] = img[row]
+        return shifted
+
+
+    def colShift(self, img, start,end, length):
+        shifted = np.zeros(img.shape)
+        if start + length < 0:
+            length = -start
+        elif end + length > img.shape[0]:
+            length = img.shape[0] - 1 - end
+
+        for col in xrange(start, end, 1):
+            shifted[:, col+length] = img[:, col]
+        return shifted
+
+
+
+
 
 
 
