@@ -157,7 +157,7 @@ class Tools(object):
         return None
 
 
-    def getRigthLine(self, img):
+    def getRightLine(self, img):
         for i in xrange(img.shape[1]-1, -1, -1):
             if np.any(img[:, i]):
                 return i
