@@ -16,7 +16,7 @@ class Tools(object):
         cv2.resizeWindow(windowName, window_width, window_height)
 
         cv2.imshow(windowName, img)
-        cv2.waitkey(0)
+        cv2.waitKey(0)
         cv2.destroyAllWindows()
 
 
@@ -41,7 +41,7 @@ class Tools(object):
         return img
 
 
-    def largestContour(self, image):
+    def largestContour(self, img):
         if self.isCV2():
             contours, h = cv2.findContours(
                 img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -57,9 +57,9 @@ class Tools(object):
                 img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         else:
             _, contours, h = cv2.findContours(
-                img, cv2.RETR_TREE, cv2.CHAIN_APPROX_CHAIN)
+                img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        contours = sorted(contours, key = cv2.ContourArea, reverse = True)
+        contours = sorted(contours, key = cv2.contourArea, reverse = True)
         for cnt in contours[:min(5, len(contours))]:
             im = img.copy()
             cv2.drawContours(im, cnt, -1, (255, 255, 255), 5)
@@ -79,7 +79,7 @@ class Tools(object):
 
 
     def cut_out_sudoku_puzzle(self, img, contour):
-        x, y, w, h = cv2.bondingRect(contour)
+        x, y, w, h = cv2.boundingRect(contour)
         img = img[y:y+h, x:x+w]
         return self.make_it_square(img, min(img.shape))
 
@@ -93,13 +93,13 @@ class Tools(object):
 
     def approx(self, cnt):
         peri = cv2.arcLength(cnt, True)
-        app = cv2.approxPolyDp(cnt, 0.01*peri, True)
+        app = cv2.approxPolyDP(cnt, 0.01*peri, True)
         return app
 
 
     def get_rectangle_corners(self, cnt):
         pts = cnt.reshape(4,2)
-        rect = np.zeros((4.3), dtype = "float32")
+        rect = np.zeros((4,2), dtype = "float32")
 
         # the top-left point has the smallest sum whereas
         # bottom-right point has the largest sum
@@ -124,11 +124,13 @@ class Tools(object):
         heightA = np.sqrt((tl[0] - bl[0])**2 + (tl[1] - bl[1])**2)
         heightB = np.sqrt((tr[0] - br[0])**2 + (tr[1] - br[1])**2)
 
-        maxWidth = max(widthA, widthB)
-        maxHeight = max(heightA, heightB)
+        maxWidth = max(int(widthA), int(widthB))
+        maxHeight = max(int(heightA), int(heightB))
 
-        dst = np.array([0,0], [maxWidth -1, 0],
-                       [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1],dtype = "float32")
+        dst = np.array([[0,0],
+         [maxWidth -1, 0],
+         [maxWidth - 1, maxHeight - 1], 
+         [0, maxHeight - 1]],dtype = "float32")
 
         # calculate the perspective transform matrix and warp the perspective to grab the screen
         M = cv2.getPerspectiveTransform(rect, dst)

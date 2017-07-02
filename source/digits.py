@@ -13,7 +13,7 @@ class Digits(object):
         self.visited = [[False for _ in xrange(
             self.hei)] for _ in xrange(self.wid)]
         self.digits = [[None for _ in xrange(
-            self.hei) for _ in xrange(self.wid)]]
+            self.hei)] for _ in xrange(self.wid)]
         self.build_digits()
 
     def build_digits(self):
@@ -48,6 +48,7 @@ class Digits(object):
         queue.put((i, j))
         while not queue.empty():
             i, j = queue.get()
+          
             invalid_row = i not in xrange(0, self.hei)
             invalid_col = j not in xrange(0, self.wid)
             invalid_pixel = invalid_row or invalid_col or self.graph[i][j] != 255

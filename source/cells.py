@@ -28,12 +28,12 @@ class Cells(object):
             for c in range(0, height, cell_size):
                 cell = image[r:r + cell_size, c:c + cell_size]
                 cell = self.tools.make_it_square(cell, 28)
-                self.tools.show(cell, 'Before clean')
+               # self.tools.show(cell, 'Before clean')
                 cell = self.clean(cell)
                 digit = Digits(cell).digits
-                self.tools.show(cell, 'After clean')
+                #self.tools.show(cell, 'After clean')
                 digit = self.center_digit(digit)
-                self.tools.show(digit, 'After centering')
+                #self.tools.show(digit, 'After centering')
                 row.append(digit // 255)
                 j += 1
             cells.append(row)
@@ -44,7 +44,7 @@ class Cells(object):
         """ morphology transfer the cells again
         try to clean more the noise points"""
         contour = self.tools.largestContour(cell.copy())
-        x, y, w, h = cv2.bondingRect(contour)
+        x, y, w, h = cv2.boundingRect(contour)
         cell = self.tools.make_it_square(cell[x:x+w, y:y+h], 28)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
         cell = cv2.morphologyEx(cell, cv2.MORPH_CLOSE, kernel)

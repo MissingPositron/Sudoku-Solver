@@ -30,9 +30,9 @@ class Extractor(object):
     def preprocess(self):
         """ image preprocessing"""
         print 'preprocessing...'
-        self.image = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         self.image = self.tools.thresholdify(self.image)
-        kernel = cv2.getStructingElement(cv2.MORPH_ELLIPSE, (2, 2))
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
         self.image = cv2.morphologyEx(self.image, cv2.MORPH_CLOSE, kernel)
         self.tools.show(self.image, 'After preprocessing.')
         print 'done'
